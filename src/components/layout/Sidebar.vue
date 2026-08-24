@@ -1,22 +1,20 @@
 <script setup>
+import { computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
-import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
-const userStore = useUserStore();
 
 const navItems = [
   { name: "dashboard", label: "Dashboard", icon: "grid" },
-  { name: "user-management", label: "User Management", icon: "users" },
+  { name: "user-management", label: "User Management", icon: "users", role: "ADMIN" },
 ];
 
-async function getProfile() {
-  const profile = await userStore.fetchByToken();
-  console.log(profile);
-}
+const visibleNavItems = computed(() =>
+  navItems.filter((item) => !item.role || authStore.isAdmin),
+);
 
 async function handleLogout() {
   await authStore.logout();
@@ -33,7 +31,7 @@ async function handleLogout() {
 
     <nav class="sidebar-nav">
       <router-link
-        v-for="item in navItems"
+        v-for="item in visibleNavItems"
         :key="item.name"
         :to="{ name: item.name }"
         class="nav-item"

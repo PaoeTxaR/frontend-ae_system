@@ -22,7 +22,7 @@ const routes = [
     path: '/users',
     name: 'user-management',
     component: () => import('@/views/user-management/UserListView.vue'),
-    meta: { requiresAuth: true, layout: 'dashboard' },
+    meta: { requiresAuth: true, requiresAdmin: true, layout: 'dashboard' },
   },
 ]
 
@@ -38,6 +38,10 @@ router.beforeEach((to) => {
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
+  }
+
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    return { name: 'dashboard' }
   }
 
   if (to.name === 'login' && authStore.isAuthenticated) {
